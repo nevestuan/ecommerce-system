@@ -15,11 +15,18 @@ builder.Services
     .AddApplicationInsightsTelemetryWorkerService()
     .ConfigureFunctionsApplicationInsights();
 
-// Cosmos DB configuration
+// Cosmos DB configuration with camelCase serialization
 builder.Services.AddSingleton(s =>
 {
     var connectionString = Environment.GetEnvironmentVariable("CosmosDbConnectionString")!;
-    return new CosmosClient(connectionString);
+    var cosmosSerializerOptions = new CosmosSerializationOptions
+    {
+        PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
+    };
+    return new CosmosClient(connectionString, new CosmosClientOptions
+    {
+        SerializerOptions = cosmosSerializerOptions
+    });
 });
 
 builder.Services.AddSingleton<IProductRepository>(s =>
