@@ -57,7 +57,7 @@ jobs:
         kubectl create namespace ${{ env.NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
 
     - name: Create/Update Storage Secret
-      run: kubectl create secret generic product-engine-secrets --namespace ${{ env.NAMESPACE }} --from-literal=AzureWebJobsStorage=${{ secrets.AZURE_WEBJOBS_STORAGE }} --dry-run=client -o yaml | kubectl apply -f -
+      run: kubectl create secret generic product-engine-secrets --namespace ${{ env.NAMESPACE }} --from-literal=AzureWebJobsStorage=${{ secrets.AZURE_WEBJOBS_STORAGE }} --dry-run=client -o yaml | kubectl apply -f - || true
 
     - name: Deploy to AKS
       working-directory: ${{ env.SERVICE_PATH }}
