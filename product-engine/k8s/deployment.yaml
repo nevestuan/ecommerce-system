@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-engine
+  namespace: ecommerce
+  labels:
+    app: product-engine
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: product-engine
+  template:
+    metadata:
+      labels:
+        app: product-engine
+    spec:
+      containers:
+      - name: product-engine
+        image: ${ACR_NAME}.azurecr.io/product-engine:${IMAGE_TAG}
+        ports:
+        - containerPort: 80
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: Production
+        - name: AzureWebJobsStorage
+          valueFrom:
+            secretKeyRef:
+              name: product-engine-secrets
+              key: AzureWebJobsStorage
+        - name: FUNCTIONS_WORKER_RUNTIME
+          value: "dotnet-isolated"
+        resources:
+          requests:
+            cpu: "0.5"
+            memory: "512Mi"
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-engine
+  namespace: ecommerce
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: product-engine
