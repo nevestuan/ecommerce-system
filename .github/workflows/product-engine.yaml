@@ -1,12 +1,11 @@
-name: Build and Deploy Product Engine
+name: Product Engine CI/CD
 
 on:
   push:
     branches: [ main ]
     paths:
-      - 'src/**'
-      - 'k8s/**'
-      - '.github/workflows/**'
+      - 'product-engine/**'
+      - '.github/workflows/product-engine.yaml'
   workflow_dispatch:
 
 env:
@@ -15,6 +14,7 @@ env:
   RESOURCE_GROUP: ecommerce-rg
   CLUSTER_NAME: ecommerce-dev-aks
   NAMESPACE: ecommerce
+  SERVICE_PATH: product-engine
 
 jobs:
   build-and-deploy:
@@ -39,7 +39,7 @@ jobs:
         password: ${{ secrets.ACR_PASSWORD }}
 
     - name: Build and push image
-      working-directory: ./src
+      working-directory: ${{ env.SERVICE_PATH }}/src
       run: |
         IMAGE_TAG=$(date +%Y%m%d.%H%M%S)
         docker build -t ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:$IMAGE_TAG -f ProductEngine.FnApp/Dockerfile .
@@ -64,7 +64,8 @@ jobs:
           --dry-run=client -o yaml | kubectl apply -f -
 
     - name: Deploy to AKS
+      working-directory: ${{ env.SERVICE_PATH }}
       run: |
         sed -i "s/\${ACR_NAME}/${{ env.ACR_NAME }}/g" k8s/deployment.yaml
         sed -i "s/\${IMAGE_TAG}/${{ env.IMAGE_TAG }}/g" k8s/deployment.yaml
-        kubectl apply -f k8s/deployment.yaml
+        kubectl apply -f k8s/deployment.yaml 
