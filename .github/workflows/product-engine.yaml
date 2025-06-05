@@ -60,7 +60,11 @@ jobs:
       run: kubectl delete secret product-engine-secrets --namespace ${{ env.NAMESPACE }} || true
 
     - name: Create Storage Secret
-      run: kubectl create secret generic product-engine-secrets --namespace ${{ env.NAMESPACE }} --from-literal=AzureWebJobsStorage=${{ secrets.AZURE_WEBJOBS_STORAGE }} --from-literal=CosmosDbConnectionString=${{ secrets.COSMOSDB_CONNECTION_STRING }}
+      run: |
+        kubectl create secret generic product-engine-secrets \
+          --namespace ${{ env.NAMESPACE }} \
+          --from-literal=AzureWebJobsStorage="${{ secrets.AZURE_WEBJOBS_STORAGE }}" \
+          --from-literal=CosmosDbConnectionString="${{ secrets.COSMOSDB_CONNECTION_STRING }}"
 
     - name: Deploy to AKS
       working-directory: ${{ env.SERVICE_PATH }}
