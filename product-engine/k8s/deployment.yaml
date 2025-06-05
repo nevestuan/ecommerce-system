@@ -30,6 +30,15 @@ spec:
               key: AzureWebJobsStorage
         - name: FUNCTIONS_WORKER_RUNTIME
           value: "dotnet-isolated"
+        - name: CosmosDbConnectionString
+          valueFrom:
+            secretKeyRef:
+              name: product-engine-secrets
+              key: CosmosDbConnectionString
+        - name: CosmosDbDatabaseId
+          value: "product-db"
+        - name: CosmosDbContainerId
+          value: "products"
         resources:
           requests:
             cpu: "0.5"
